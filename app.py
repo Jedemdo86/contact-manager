@@ -1,115 +1,64 @@
 import mysql.connector
-mydb = mysql.connector.connect(
-  host="localhost",
-  user="root",
-  password="",
-  database="mycontactdb"
-)
-cursor = mydb.cursor()
+from db_funktionen import *
+from db_verbindung import *
 
-def create_database():
-    sql = """CREATE DATABASE mycontactdb"""
+
+def create_person(vorname, nachname, geschlecht, geburtsdatum, groesse):
+    sql="""
+    INSERT INTO person (vorname, nachname, geschlecht, geburtsdatum, groesse)
+    VALUES (%s, %s, %s, %s, %s)
+    """
+    werte= (vorname, nachname, geschlecht, geburtsdatum, groesse)
+    cursor.execute(sql, werte)
+    mydb.commit()
+
+def create_kommunikation(person_id, typ, wert):
+    sql="""
+    INSERT INTO kommunikation (person_id, typ, wert)
+    VALUES (%s, %s, %s)
+    """
+    werte= (person_id, typ, wert)
+    cursor.execute(sql, werte)
+    mydb.commit()
+
+def update_person():
+    sql= """
+    UPDATE person_adresse
+    SET gueltig_bis = "2077-12-31"
+    WHERE adresse_id = 1
+    """
     cursor.execute(sql)
     mydb.commit()
 
-def create_table():
-    sql1= """CREATE TABLE IF NOT EXISTS person (
-                person_id INT AUTO_INCREMENT PRIMARY KEY,
-                vorname VARCHAR(30),
-                nachname VARCHAR(30),
-                geschlecht VARCHAR(30),
-                geburtsdatum DATE,
-                groesse INT
-            );"""
-            
-    sql2= """CREATE TABLE IF NOT EXISTS kommunikation (
-                kommunikation_id INT AUTO_INCREMENT PRIMARY KEY,
-                person_id INT,
-                typ VARCHAR(30),
-                wert VARCHAR(100),
-                FOREIGN KEY (person_id) REFERENCES person(person_id)
-                    ON DELETE CASCADE
-            );"""
-            
-    sql3= """CREATE TABLE IF NOT EXISTS adresse (
-                adresse_id INT AUTO_INCREMENT PRIMARY KEY,
-                typ VARCHAR(50),
-                strasse VARCHAR(100),
-                hausnummer VARCHAR(5),
-                plz VARCHAR(5),
-                stadt VARCHAR(100),
-                land VARCHAR(100)    
-            );"""
-    sql4= """CREATE TABLE IF NOT EXISTS person_adresse (
-                person_id INT,
-                adresse_id INT,
-                ist_standard BOOLEAN,
-                adress_typ VARCHAR(50),
-                gueltig_bis DATE,
-                FOREIGN KEY (person_id) REFERENCES person(person_id),
-                FOREIGN KEY (adresse_id) REFERENCES adresse(adresse_id)
-            );"""
-    sql5= """CREATE TABLE IF NOT EXISTS hobby (
-                hobby_id INT AUTO_INCREMENT PRIMARY KEY,
-                name VARCHAR (100),
-                beschreibung VARCHAR (1000)
-            );"""
-    
-    sql6= """CREATE TABLE IF NOT EXISTS person_hobby (
-                person_id INT,
-                hobby_id INT,
-                FOREIGN KEY (person_id) REFERENCES person (person_id),
-                FOREIGN KEY (hobby_id) REFERENCES hobby (hobby_id)
-            );"""
-            
-    sql7= """CREATE TABLE IF NOT EXISTS notiz (
-                notiz_id INT AUTO_INCREMENT PRIMARY KEY,
-                person_id INT,
-                typ VARCHAR(100),
-                inhalt VARCHAR(1000),
-                datum DATE,
-                FOREIGN KEY (person_id) REFERENCES person (person_id)
-            );"""
-            
-    sql8= """CREATE TABLE IF NOT EXISTS job (
-                job_id INT AUTO_INCREMENT PRIMARY KEY,
-                person_id INT,
-                titel VARCHAR(50),
-                beschreibung VARCHAR(500),
-                firma VARCHAR(100),
-                gehalt INT,
-                FOREIGN KEY (person_id) REFERENCES person (person_id)
-            );"""
-            
-    sql9= """CREATE TABLE IF NOT EXISTS inventar (
-                inventar_id INT AUTO_INCREMENT PRIMARY KEY,
-                person_id INT,
-                kopf VARCHAR(50),
-                brust VARCHAR(50),
-                bein VARCHAR(50),
-                fuss VARCHAR(50),
-                geld INT,
-                FOREIGN KEY (person_id) REFERENCES person (person_id)
-            );"""
-            
-    cursor.execute(sql1)
-    cursor.execute(sql2)
-    cursor.execute(sql3)
-    cursor.execute(sql4)
-    cursor.execute(sql5)
-    cursor.execute(sql6)
-    cursor.execute(sql7)
-    cursor.execute(sql8)
-    cursor.execute(sql9)
-    mydb.commit()
+def create_adresse(person_id, typ, strasse, hausnummer, plz, stadt, land, ist_standard, adress_typ, gueltig_bis):
+    sql_1="""
+    INSERT INTO adresse (typ, strasse, hausnummer, plz, stadt, land)
+    VALUES (%s, %s, %s, %s, %s, %s)
+    """
+    werte= (typ, strasse, hausnummer, plz, stadt, land)
+    cursor.execute(sql_1, werte)
 
-def drop_table(tablename):
-    sql= f"DROP TABLE {tablename}"
-    print(f"Die Tabelle {tablename} wird gelöscht..")
-    cursor.execute(sql)
-    mydb.commit()
+    adresse_id = cursor.lastrowid
 
+    sql_2="""
+    INSERT INTO person_adresse (person_id, adresse_id, ist_standard, adress_typ, gueltig_bis)
+    VALUES (%s, %s, %s, %s, %s)
+    """
+    werte= (person_id, adresse_id, ist_standard, adress_typ, gueltig_bis)
+    cursor.execute(sql_2, werte)
+    print(f"Adresse für Person ID: {person_id} hinzugefügt")
+    mydb.commit()
 
 # create_database()
 # create_table()
 # drop_table("person")
+# create_person("Thiemo", "Vetter", "M", "1986-11-24", 175)
+# create_person("Sophia", "Madel", "W", "1990-08-11", 157)
+create_person("Daniel", "Herkendell", "M", "1986-10-25", 176)
+# create_kommunikation(1,"Telefon","01783470722")
+# create_adresse("1","Wohnung", "Kirchbachstraße", "12a", "45476", "Mülheim an der Ruhr", "Deutschland", "1", "Privat", "2077-12-31")
+# update_person()
+person_anzeigen(1)
+person_anzeigen(2)
+person_anzeigen(3)
+
