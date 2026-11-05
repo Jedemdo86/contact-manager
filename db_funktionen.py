@@ -1,4 +1,5 @@
 from db_verbindung import mydb, cursor
+import random
 
 def create_database():
     sql = """CREATE DATABASE mycontactdb"""
@@ -159,3 +160,121 @@ def person_anzeigen(person_id):
     if not hat_adresse:
         print("  (Keine Adressdaten hinterlegt)")
     print("=" * 40)
+    
+def create_person(vorname, nachname, geschlecht, geburtsdatum, groesse):
+    sql="""
+    INSERT INTO person (vorname, nachname, geschlecht, geburtsdatum, groesse)
+    VALUES (%s, %s, %s, %s, %s)
+    """
+    werte= (vorname, nachname, geschlecht, geburtsdatum, groesse)
+    cursor.execute(sql, werte)
+    mydb.commit()
+
+def create_kommunikation(person_id, typ, wert):
+    sql="""
+    INSERT INTO kommunikation (person_id, typ, wert)
+    VALUES (%s, %s, %s)
+    """
+    werte= (person_id, typ, wert)
+    cursor.execute(sql, werte)
+    mydb.commit()
+
+def update_person():
+    sql= """
+    UPDATE person_adresse
+    SET gueltig_bis = "2077-12-31"
+    WHERE adresse_id = 1
+    """
+    cursor.execute(sql)
+    mydb.commit()
+
+def create_adresse(person_id, typ, strasse, hausnummer, plz, stadt, land, ist_standard, adress_typ, gueltig_bis):
+    sql_1="""
+    INSERT INTO adresse (typ, strasse, hausnummer, plz, stadt, land)
+    VALUES (%s, %s, %s, %s, %s, %s)
+    """
+    werte= (typ, strasse, hausnummer, plz, stadt, land)
+    cursor.execute(sql_1, werte)
+
+    adresse_id = cursor.lastrowid
+
+    sql_2="""
+    INSERT INTO person_adresse (person_id, adresse_id, ist_standard, adress_typ, gueltig_bis)
+    VALUES (%s, %s, %s, %s, %s)
+    """
+    werte= (person_id, adresse_id, ist_standard, adress_typ, gueltig_bis)
+    cursor.execute(sql_2, werte)
+    print(f"Adresse für Person ID: {person_id} hinzugefügt")
+    mydb.commit()
+    
+
+
+def create_hobby(name, beschreibung):
+    sql= """
+    INSERT INTO hobby (name, beschreibung)
+    VALUES (%s, %s)
+    """
+    werte= (name, beschreibung)
+    cursor.execute(sql, werte)
+    print("Hobby erstellt")
+    mydb.commit()
+    
+def assign_hobby(person_id, hobby_id):
+    print(f"person_id: {person_id} | hobby_id: {hobby_id}")
+    sql="""
+    INSERT INTO person_hobby (person_id, hobby_id)
+    VALUES (%s, %s)
+    """
+    werte= (person_id, hobby_id)
+    cursor.execute(sql, werte)
+    print("Hobby zugewiesen")
+    mydb.commit()
+    
+def name_generator():
+    
+
+
+
+    
+    nachnamen_liste = [
+        "Dreier", "Valuski", "Müller", "Schmidt", "Schneider", "Fischer", "Weber", "Meyer", "Wagner", "Becker",
+        "Schulz", "Hoffmann", "Schäfer", "Koch", "Bauer", "Richter", "Klein", "Wolf", "Schröder", "Neumann",
+        "Schwarz", "Zimmermann", "Braun", "Krüger", "Hartmann", "Lange", "Werner", "Schmitz", "Krause", "Meier",
+        "Lehmann", "Schmid", "Schulze", "Maier", "Köhler", "Herrmann", "König", "Walter", "Mayer", "Huber",
+        "Kaiser", "Fuchs", "Peters", "Lang", "Scholz", "Möller", "Weiß", "Jung", "Hahn", "Schubert",
+        "Vogel", "Friedrich", "Keller", "Günther", "Frank", "Berger", "Winkler", "Roth", "Beck", "Lorenz",
+        "Baumann", "Franke", "Albrecht", "Schuster", "Gast", "Böhm", "Winter", "Kraus", "Martin", "Vogt",
+        "Stein", "Jäger", "Otto", "Sommer", "Groß", "Seidel", "Heinrich", "Brandt", "Haas", "Schreiber",
+        "Graf", "Dietrich", "Ziegler", "Kuhn", "Kühn", "Pohl", "Engel", "Horn", "Busch", "Bergmann",
+        "Thomas", "Voigt", "Sauer", "Arnold", "Wolff", "Pfeiffer", "Timm", "Kramer", "Hansen", "Nagel"
+    ]
+    geschlecht_liste = ["M","W"]
+    
+    random_geschlecht = random.choice(geschlecht_liste)
+    if random_geschlecht == "M":
+        m_vornamen_liste = [
+            "Maximilian", "Alexander", "Lukas", "Leon", "Elias", "Paul", "Felix", "Jonas", "David", "Julian",
+            "Ben", "Louis", "Henry", "Finn", "Liam", "Anton", "Emil", "Oskar", "Theodor", "Mats",
+            "Leo", "Moritz", "Milan", "Noah", "Jan", "Tim", "Tobias", "Florian", "Niklas", "Simon",
+            "Fabian", "Philipp", "Dominik", "Daniel", "Christian", "Michael", "Stefan", "Nico", "Kevin", "Justin",
+            "Marvin", "Pascal", "Robin", "Timon", "Levin", "Mika", "Jannik", "Jonathan", "Samuel", "Clemens",
+            "Benedikt", "Johannes", "Timo", "Sven", "Markus", "Lars", "Oliver", "Patrick", "Marcel", "Dennis",
+            "Sean", "Thiemo", "Aaron", "Benjamin", "Dominic", "Erik", "Gabriel", "Hannes", "Kilian", "Linus",
+            "Marlon", "Raphael", "Silas", "Valentin", "Vincent", "Hannes", "Toni", "Tom", "Janis", "Keno"
+        ]
+        random_vorname = random.choice(m_vornamen_liste)
+    else:
+        w_vornamen_liste = [
+            "Anna", "Maria", "Lena", "Laura", "Hannah", "Sarah", "Lea", "Sofia", "Marie", "Mia",
+            "Emilia", "Sophia", "Emma", "Clara", "Johanna", "Lina", "Mila", "Charlotte", "Amelie", "Luisa",
+            "Leonie", "Greta", "Victoria", "Nina", "Julia", "Lisa", "Kim", "Melanie", "Sandra", "Jessica",
+            "Zoe", "Elena", "Maya", "Pia", "Tina", "Katrin", "Nadine", "Stefanie", "Chiara", "Franziska",
+            "Jasmin", "Katharina", "Lara", "Magdalena", "Miriam", "Paula", "Rabea", "Ronja", "Sabrina", "Saskia",
+            "Selina", "Theresa", "Vanessa", "Vivienne", "Xenia", "Yvonne", "Amira", "Celine", "Eileen", "Emily",
+            "Lilli", "Nele", "Sophie", "Stella", "Talea", "Alina", "Anja", "Carolin", "Denise", "Esther"
+        ]
+        random_vorname = random.choice(w_vornamen_liste)
+    
+    random_nachname = random.choice(nachnamen_liste)
+    
+    return random_vorname, random_nachname, random_geschlecht
