@@ -231,11 +231,6 @@ def assign_hobby(person_id, hobby_id):
     mydb.commit()
     
 def name_generator():
-    
-
-
-
-    
     nachnamen_liste = [
         "Dreier", "Valuski", "Müller", "Schmidt", "Schneider", "Fischer", "Weber", "Meyer", "Wagner", "Becker",
         "Schulz", "Hoffmann", "Schäfer", "Koch", "Bauer", "Richter", "Klein", "Wolf", "Schröder", "Neumann",
@@ -248,6 +243,7 @@ def name_generator():
         "Graf", "Dietrich", "Ziegler", "Kuhn", "Kühn", "Pohl", "Engel", "Horn", "Busch", "Bergmann",
         "Thomas", "Voigt", "Sauer", "Arnold", "Wolff", "Pfeiffer", "Timm", "Kramer", "Hansen", "Nagel"
     ]
+    
     geschlecht_liste = ["M","W"]
     
     random_geschlecht = random.choice(geschlecht_liste)
