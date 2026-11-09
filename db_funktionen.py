@@ -110,7 +110,7 @@ def person_anzeigen(person_id):
     LEFT JOIN kommunikation k ON p.person_id = k.person_id
     LEFT JOIN person_adresse pa ON p.person_id = pa.person_id
     LEFT JOIN adresse a ON pa.person_id = a.adresse_id
-    WHERE p.person_id = %s
+    # WHERE p.person_id = %s
     """
     cursor.execute(sql, (person_id,))
     ergebnisse = cursor.fetchall()
@@ -187,6 +187,16 @@ def update_person():
     """
     cursor.execute(sql)
     mydb.commit()
+    
+def delete_adresse(person_id, adresse_id):
+    sql="""
+    DELETE FROM person_adresse
+    WHERE person_id = "2" AND adresse_id = "1" AND gueltig_bis IS NULL
+    """
+    cursor.execute(sql)
+    mydb.commit()
+    print("Eintrag gelöscht")
+    
 
 def create_adresse(person_id, typ, strasse, hausnummer, plz, stadt, land, ist_standard, adress_typ, gueltig_bis):
     sql_1="""
@@ -207,6 +217,16 @@ def create_adresse(person_id, typ, strasse, hausnummer, plz, stadt, land, ist_st
     print(f"Adresse für Person ID: {person_id} hinzugefügt")
     mydb.commit()
     
+def assign_adresse(person_id, adresse_id, ist_standard, adress_typ, gueltig_bis):
+    sql="""
+    INSERT INTO person_adresse (person_id, adresse_id, ist_standard, adress_typ, gueltig_bis)
+    VALUES (%s, %s, %s, %s, %s)
+    """
+    werte= (person_id, adresse_id, ist_standard, adress_typ, gueltig_bis)
+    cursor.execute(sql, werte)
+    print("Adresse zugewiesen")    
+    mydb.commit()
+
 
 
 def create_hobby(name, beschreibung):

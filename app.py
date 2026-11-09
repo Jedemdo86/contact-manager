@@ -17,6 +17,7 @@ from db_verbindung import *
 # person_anzeigen(1)
 # person_anzeigen(2)
 # person_anzeigen(3)
+# delete_adresse(2,1)
 
 print(f"{name_generator()} \n{name_generator()} \n{name_generator()} \n{name_generator()} \n{name_generator()} \n{name_generator()} \n")
 person_1 = name_generator()
@@ -34,6 +35,8 @@ while True:
     print("3 - Kommunikationsmittel erstellen")
     print("4 - Hobby erstellen")
     print("5 - Hobby zuweisen")
+    print("6 - Adresse erstellen")
+    print("7 - Adresse zuweisen")
     print("9 - Beenden")
     print("Auswahl:")
     auswahl = input()
@@ -113,7 +116,32 @@ while True:
             print("Tippe '1' zum bestätigen")
             auswahl = input()
             if auswahl == "1":
-                assign_hobby(person_id, hobby_id)            
+                assign_hobby(person_id, hobby_id)     
+        case "7":
+            print("Welcher Personen ID soll die Adress_id zugeordnet werden?")    
+            print("person_id:")
+            person_id = input()
+            print("adresse_id:")
+            adresse_id = input()
+            print("Hauptwohnsitz der Person? (j / n)")
+            ist_standard = input()
+            if ist_standard == "j":
+                ist_standard = "1"
+            else:
+                ist_standard = "0"    
+            print("Privat oder Geschäftsadresse? (p / g)")
+            adress_typ = input()
+            if adress_typ == "p":
+                adress_typ = "Privat"
+            elif adress_typ == "g":
+                adress_typ = "Geschäftlich"
+            else:
+                print("Keine gültige Angabe")
+                quit()
+            print("Bis wann ist die Adresse gültig? (JAHR,MONAT,TAG (1970-12-24) )")
+            gueltig_bis = input()
+            
+            assign_adresse(person_id, adresse_id, ist_standard, adress_typ, gueltig_bis)
         case "9":
             print("Beende Terminal-App..")
             quit()
