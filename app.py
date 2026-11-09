@@ -18,6 +18,7 @@ from db_verbindung import *
 # person_anzeigen(2)
 # person_anzeigen(3)
 # delete_adresse(2,1)
+update_geschlecht(4,"W")
 
 print(f"{name_generator()} \n{name_generator()} \n{name_generator()} \n{name_generator()} \n{name_generator()} \n{name_generator()} \n")
 person_1 = name_generator()
@@ -116,7 +117,34 @@ while True:
             print("Tippe '1' zum bestätigen")
             auswahl = input()
             if auswahl == "1":
-                assign_hobby(person_id, hobby_id)     
+                assign_hobby(person_id, hobby_id)
+        case "6":
+            print("Erstellung einer neuen Adresse")
+            print("Welchem Typ entspicht die Adresse?")
+            print("1 - Wohnung \n2 - Haus")
+            typ = input()
+            while typ != "Wohnung" and "Haus":
+                typ = input()
+                match typ:
+                    case "1":
+                        typ = "Wohnung"
+                    case "2":
+                        typ = "Haus"
+                    case _:
+                        print("keine gültige Auswahl")
+
+            print("Straßenname:")
+            strasse = input()
+            print("Hausnummer:")
+            hausnummer = input()
+            print("PLZ:")
+            plz = input()
+            print("Stadt:")
+            stadt = input()
+            print("Land:")
+            land = input()
+            adresse_id = create_adresse(typ, strasse, hausnummer, plz, stadt, land)
+            print(f"Adresse ID:{adresse_id}\n Typ:      {typ}\nStraße:      {strasse} {hausnummer} in {plz}, {stadt}\nLand:     {land}\n\n wurde erstellt.")
         case "7":
             print("Welcher Personen ID soll die Adress_id zugeordnet werden?")    
             print("person_id:")

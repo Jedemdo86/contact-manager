@@ -187,6 +187,17 @@ def update_person():
     """
     cursor.execute(sql)
     mydb.commit()
+
+def update_geschlecht (person_id, geschlecht):
+    sql= """
+    UPDATE person
+    SET geschlecht = %s
+    WHERE person_id = %s
+    """
+    werte= (geschlecht, person_id)
+    cursor.execute(sql,werte)
+    mydb.commit()
+    
     
 def delete_adresse(person_id, adresse_id):
     sql="""
@@ -198,24 +209,15 @@ def delete_adresse(person_id, adresse_id):
     print("Eintrag gelöscht")
     
 
-def create_adresse(person_id, typ, strasse, hausnummer, plz, stadt, land, ist_standard, adress_typ, gueltig_bis):
+def create_adresse(typ, strasse, hausnummer, plz, stadt, land):
     sql_1="""
     INSERT INTO adresse (typ, strasse, hausnummer, plz, stadt, land)
     VALUES (%s, %s, %s, %s, %s, %s)
     """
     werte= (typ, strasse, hausnummer, plz, stadt, land)
     cursor.execute(sql_1, werte)
-
-    adresse_id = cursor.lastrowid
-
-    sql_2="""
-    INSERT INTO person_adresse (person_id, adresse_id, ist_standard, adress_typ, gueltig_bis)
-    VALUES (%s, %s, %s, %s, %s)
-    """
-    werte= (person_id, adresse_id, ist_standard, adress_typ, gueltig_bis)
-    cursor.execute(sql_2, werte)
-    print(f"Adresse für Person ID: {person_id} hinzugefügt")
     mydb.commit()
+    return cursor.lastrowid
     
 def assign_adresse(person_id, adresse_id, ist_standard, adress_typ, gueltig_bis):
     sql="""
