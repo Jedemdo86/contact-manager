@@ -1,107 +1,8 @@
 from db_verbindung import mydb, cursor
 import random
+from datetime import datetime, timedelta
+from listen import *
 
-def create_database():
-    sql = """CREATE DATABASE mycontactdb"""
-    cursor.execute(sql)
-    mydb.commit()
-
-def create_table():
-    sql1= """CREATE TABLE IF NOT EXISTS person (
-                person_id INT AUTO_INCREMENT PRIMARY KEY,
-                vorname VARCHAR(30),
-                nachname VARCHAR(30),
-                geschlecht VARCHAR(30),
-                geburtsdatum DATE,
-                groesse INT
-            );"""
-            
-    sql2= """CREATE TABLE IF NOT EXISTS kommunikation (
-                kommunikation_id INT AUTO_INCREMENT PRIMARY KEY,
-                person_id INT,
-                typ VARCHAR(30),
-                wert VARCHAR(100),
-                FOREIGN KEY (person_id) REFERENCES person(person_id)
-                    ON DELETE CASCADE
-            );"""
-            
-    sql3= """CREATE TABLE IF NOT EXISTS adresse (
-                adresse_id INT AUTO_INCREMENT PRIMARY KEY,
-                typ VARCHAR(50),
-                strasse VARCHAR(100),
-                hausnummer VARCHAR(5),
-                plz VARCHAR(5),
-                stadt VARCHAR(100),
-                land VARCHAR(100)    
-            );"""
-    sql4= """CREATE TABLE IF NOT EXISTS person_adresse (
-                person_id INT,
-                adresse_id INT,
-                ist_standard BOOLEAN,
-                adress_typ VARCHAR(50),
-                gueltig_bis DATE,
-                FOREIGN KEY (person_id) REFERENCES person(person_id),
-                FOREIGN KEY (adresse_id) REFERENCES adresse(adresse_id)
-            );"""
-    sql5= """CREATE TABLE IF NOT EXISTS hobby (
-                hobby_id INT AUTO_INCREMENT PRIMARY KEY,
-                name VARCHAR (100),
-                beschreibung VARCHAR (1000)
-            );"""
-    
-    sql6= """CREATE TABLE IF NOT EXISTS person_hobby (
-                person_id INT,
-                hobby_id INT,
-                FOREIGN KEY (person_id) REFERENCES person (person_id),
-                FOREIGN KEY (hobby_id) REFERENCES hobby (hobby_id)
-            );"""
-            
-    sql7= """CREATE TABLE IF NOT EXISTS notiz (
-                notiz_id INT AUTO_INCREMENT PRIMARY KEY,
-                person_id INT,
-                typ VARCHAR(100),
-                inhalt VARCHAR(1000),
-                datum DATE,
-                FOREIGN KEY (person_id) REFERENCES person (person_id)
-            );"""
-            
-    sql8= """CREATE TABLE IF NOT EXISTS job (
-                job_id INT AUTO_INCREMENT PRIMARY KEY,
-                person_id INT,
-                titel VARCHAR(50),
-                beschreibung VARCHAR(500),
-                firma VARCHAR(100),
-                gehalt INT,
-                FOREIGN KEY (person_id) REFERENCES person (person_id)
-            );"""
-            
-    sql9= """CREATE TABLE IF NOT EXISTS inventar (
-                inventar_id INT AUTO_INCREMENT PRIMARY KEY,
-                person_id INT,
-                kopf VARCHAR(50),
-                brust VARCHAR(50),
-                bein VARCHAR(50),
-                fuss VARCHAR(50),
-                geld INT,
-                FOREIGN KEY (person_id) REFERENCES person (person_id)
-            );"""
-            
-    cursor.execute(sql1)
-    cursor.execute(sql2)
-    cursor.execute(sql3)
-    cursor.execute(sql4)
-    cursor.execute(sql5)
-    cursor.execute(sql6)
-    cursor.execute(sql7)
-    cursor.execute(sql8)
-    cursor.execute(sql9)
-    mydb.commit()
-
-def drop_table(tablename):
-    sql= f"DROP TABLE {tablename}"
-    print(f"Die Tabelle {tablename} wird gelöscht..")
-    cursor.execute(sql)
-    mydb.commit()
 
 def person_anzeigen(person_id):
     sql="""
@@ -169,6 +70,7 @@ def create_person(vorname, nachname, geschlecht, geburtsdatum, groesse):
     werte= (vorname, nachname, geschlecht, geburtsdatum, groesse)
     cursor.execute(sql, werte)
     mydb.commit()
+    
 
 def create_kommunikation(person_id, typ, wert):
     sql="""
@@ -251,48 +153,105 @@ def assign_hobby(person_id, hobby_id):
     cursor.execute(sql, werte)
     print("Hobby zugewiesen")
     mydb.commit()
+
+def person_generator(add_to_db):
+    name = name_generator()
+    vorname = name[0]
+    nachname = name[1]
+    geschlecht = name[2]
+    geburtsdatum = generate_geburtsdatum()
+    groesse = random.randint(150, 210)
+    adresse = adress_generator()
+    typ = adresse[0]
+    strasse = adresse[1]
+    hausnummer = adresse[2]
+    stadt = adresse[3]
+    land = adresse[4]
+    print(vorname,nachname,geschlecht,geburtsdatum,groesse,typ,strasse,hausnummer,stadt,land)
+    if add_to_db:
+        sql="""
+            INSERT INTO person (vorname,nachname,geschlecht,geburtsdatum,groesse)
+            VALUES (%s, %s, %s, %s, %s)
+        """
+        werte = (vorname,nachname,geschlecht,geburtsdatum,groesse)
+        cursor.execute(sql,werte)
+        person_id = cursor.lastrowid
+        sql="""
+            INSERT INTO adresse (typ,strasse,hausnummer,stadt,land)
+            VALUES (%s, %s, %s, %s, %s)
+        """
+        werte = (typ,strasse,hausnummer,stadt,land)
+        cursor.execute(sql,werte)
+        adresse_id = cursor.lastrowid
+        ist_standard = 1
+        adress_typ = "privat"
+        gueltig_bis = "2077-12-31"
+        sql="""
+            INSERT INTO person_adresse (person_id, adresse_id, ist_standard, adress_typ, gueltig_bis)
+            VALUES (%s, %s, %s, %s, %s)
+        """
+        werte = (person_id, adresse_id, ist_standard, adress_typ, gueltig_bis)
+        cursor.execute(sql,werte)
+        mydb.commit()
+    else:
+        return
+
+def generate_geburtsdatum(min_alter=18, max_alter=85):
+  heute = datetime.today()
+
+  fruehestes_jahr = heute.year - max_alter
+  spaetestes_jahr = heute.year - min_alter
+
+  start_datum = datetime(fruehestes_jahr, 1, 1)
+  end_datum = datetime(spaetestes_jahr, 12, 31)
+
+  delta_tage = (end_datum - start_datum).days
+  zufaehlige_tage = random.randint(0, delta_tage)
+
+  geburtsdatum = start_datum + timedelta(days=zufaehlige_tage)
+
+  return geburtsdatum.strftime("%Y-%m-%d")
+
+def adress_generator():
+    typ = random.choice(typ_liste)
+    strasse = random.choice(strassen_liste)
+    hausnummer = random.randint(1,100)
+    stadt = random.choice(staedte_liste)
+    land = random.choice(land_liste)
+    return typ,strasse,hausnummer,stadt,land
+    
     
 def name_generator():
-    nachnamen_liste = [
-        "Dreier", "Valuski", "Müller", "Schmidt", "Schneider", "Fischer", "Weber", "Meyer", "Wagner", "Becker",
-        "Schulz", "Hoffmann", "Schäfer", "Koch", "Bauer", "Richter", "Klein", "Wolf", "Schröder", "Neumann",
-        "Schwarz", "Zimmermann", "Braun", "Krüger", "Hartmann", "Lange", "Werner", "Schmitz", "Krause", "Meier",
-        "Lehmann", "Schmid", "Schulze", "Maier", "Köhler", "Herrmann", "König", "Walter", "Mayer", "Huber",
-        "Kaiser", "Fuchs", "Peters", "Lang", "Scholz", "Möller", "Weiß", "Jung", "Hahn", "Schubert",
-        "Vogel", "Friedrich", "Keller", "Günther", "Frank", "Berger", "Winkler", "Roth", "Beck", "Lorenz",
-        "Baumann", "Franke", "Albrecht", "Schuster", "Gast", "Böhm", "Winter", "Kraus", "Martin", "Vogt",
-        "Stein", "Jäger", "Otto", "Sommer", "Groß", "Seidel", "Heinrich", "Brandt", "Haas", "Schreiber",
-        "Graf", "Dietrich", "Ziegler", "Kuhn", "Kühn", "Pohl", "Engel", "Horn", "Busch", "Bergmann",
-        "Thomas", "Voigt", "Sauer", "Arnold", "Wolff", "Pfeiffer", "Timm", "Kramer", "Hansen", "Nagel"
-    ]
-    
-    geschlecht_liste = ["M","W"]
-    
     random_geschlecht = random.choice(geschlecht_liste)
     if random_geschlecht == "M":
-        m_vornamen_liste = [
-            "Maximilian", "Alexander", "Lukas", "Leon", "Elias", "Paul", "Felix", "Jonas", "David", "Julian",
-            "Ben", "Louis", "Henry", "Finn", "Liam", "Anton", "Emil", "Oskar", "Theodor", "Mats",
-            "Leo", "Moritz", "Milan", "Noah", "Jan", "Tim", "Tobias", "Florian", "Niklas", "Simon",
-            "Fabian", "Philipp", "Dominik", "Daniel", "Christian", "Michael", "Stefan", "Nico", "Kevin", "Justin",
-            "Marvin", "Pascal", "Robin", "Timon", "Levin", "Mika", "Jannik", "Jonathan", "Samuel", "Clemens",
-            "Benedikt", "Johannes", "Timo", "Sven", "Markus", "Lars", "Oliver", "Patrick", "Marcel", "Dennis",
-            "Sean", "Thiemo", "Aaron", "Benjamin", "Dominic", "Erik", "Gabriel", "Hannes", "Kilian", "Linus",
-            "Marlon", "Raphael", "Silas", "Valentin", "Vincent", "Hannes", "Toni", "Tom", "Janis", "Keno"
-        ]
         random_vorname = random.choice(m_vornamen_liste)
     else:
-        w_vornamen_liste = [
-            "Anna", "Maria", "Lena", "Laura", "Hannah", "Sarah", "Lea", "Sofia", "Marie", "Mia",
-            "Emilia", "Sophia", "Emma", "Clara", "Johanna", "Lina", "Mila", "Charlotte", "Amelie", "Luisa",
-            "Leonie", "Greta", "Victoria", "Nina", "Julia", "Lisa", "Kim", "Melanie", "Sandra", "Jessica",
-            "Zoe", "Elena", "Maya", "Pia", "Tina", "Katrin", "Nadine", "Stefanie", "Chiara", "Franziska",
-            "Jasmin", "Katharina", "Lara", "Magdalena", "Miriam", "Paula", "Rabea", "Ronja", "Sabrina", "Saskia",
-            "Selina", "Theresa", "Vanessa", "Vivienne", "Xenia", "Yvonne", "Amira", "Celine", "Eileen", "Emily",
-            "Lilli", "Nele", "Sophie", "Stella", "Talea", "Alina", "Anja", "Carolin", "Denise", "Esther"
-        ]
         random_vorname = random.choice(w_vornamen_liste)
-    
-    random_nachname = random.choice(nachnamen_liste)
-    
+    random_nachname = random.choice(nachnamen_liste) 
     return random_vorname, random_nachname, random_geschlecht
+
+def hobby_generator():
+    kategorie = random.choice(hobbies_liste)
+    hobby = random.choice(kategorie["hobbies"])    
+    print("Hobby: ",hobby["name"])
+    print("Kategorie: ",kategorie["kategorie"])
+    print("Benötigte Ausrüstung: ",hobby["benoetigte_ausruestung"])
+    print("\nGefährdungsgrad: ",hobby["gefaehrdungsgrad"])
+
+
+    #TODO Function to fill SQL Hobby table with all from hobby list via nested loop. Create kategorie -> link hobbies to them. make it safely reusable
+    for kategorie in hobbies_liste:
+        print("- ",kategorie["kategorie"])
+        sql_kategorie="""
+        INSERT IGNORE INTO kategorie (kategorie_name)
+        VALUES (%s)
+        """
+        werte = (kategorie["kategorie"])
+        cursor.execute(sql_kategorie,(werte,))
+        kategorie_id = cursor.lastrowid
+        print(f"ID: {kategorie_id}")
+        for hobby in kategorie["hobbies"]:
+            print(hobby["name"])
+        print("="*40)
+        
+hobby_generator()

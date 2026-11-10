@@ -1,13 +1,15 @@
 import mysql.connector
 from db_funktionen import *
 from db_verbindung import *
+from create_database import *
 
 
 
 
 # create_database()
 # create_table()
-# drop_table("person")
+# drop_table("person_hobby")
+# drop_table("hobby")
 # create_person("Thiemo", "Vetter", "M", "1986-11-24", 175)
 # create_person("Sophia", "Madel", "W", "1990-08-11", 157)
 # create_person("Daniel", "Herkendell", "M", "1986-10-25", 176)
@@ -18,14 +20,15 @@ from db_verbindung import *
 # person_anzeigen(2)
 # person_anzeigen(3)
 # delete_adresse(2,1)
-update_geschlecht(4,"W")
+# update_geschlecht(4,"W")
+# person_generator(False)
 
-print(f"{name_generator()} \n{name_generator()} \n{name_generator()} \n{name_generator()} \n{name_generator()} \n{name_generator()} \n")
-person_1 = name_generator()
-vorname = person_1[0]
-nachname = person_1[1]
-geschlecht = person_1[2]
-print(f"Zusammengesetzter Name: {vorname} {nachname}, {geschlecht}")
+# print(f"{name_generator()} \n{name_generator()} \n{name_generator()} \n{name_generator()} \n{name_generator()} \n{name_generator()} \n")
+# person_1 = name_generator()
+# vorname = person_1[0]
+# nachname = person_1[1]
+# geschlecht = person_1[2]
+# print(f"Zusammengesetzter Name: {vorname} {nachname}, {geschlecht}")
 
 
 while True:
@@ -38,6 +41,7 @@ while True:
     print("5 - Hobby zuweisen")
     print("6 - Adresse erstellen")
     print("7 - Adresse zuweisen")
+    print("8 - Erstelle zufällige Person")
     print("9 - Beenden")
     print("Auswahl:")
     auswahl = input()
@@ -170,6 +174,13 @@ while True:
             gueltig_bis = input()
             
             assign_adresse(person_id, adresse_id, ist_standard, adress_typ, gueltig_bis)
+        case "8":
+            print("Erstelle neue Person")
+            print("Wie viele Personen sollen erstellt werden?")         
+            count = int(input())
+            for c in range(count):
+                person_generator(True)
+            
         case "9":
             print("Beende Terminal-App..")
             quit()
